@@ -1,8 +1,9 @@
 import { useState } from "react";
 
-import { View, FlatList } from "react-native";
+import { View, FlatList, SectionList, Text} from "react-native";
 
-import { CATEGORIES } from "@/utils/data/products";
+import { Product } from "@/components/product";
+import { CATEGORIES, MENU } from "@/utils/data/products";
 import { Header } from "@/components/header";
 import { CategoryButton } from "@/components/category-button";
 
@@ -16,8 +17,8 @@ export default function Home(){
 
 
     return(
-        <View className="bg-slate-900 pt-8">
-            <Header title="Faça seu pedido" cartQuantityItems={5}/>
+        <View className="bg-slate-900 pt-8 flex-1">
+            <Header title="Faça seu pedido" cartQuantityItems={4}/>
 
             <FlatList 
                 data={CATEGORIES}
@@ -28,6 +29,21 @@ export default function Home(){
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{gap:12, paddingHorizontal: 20}}
 
+            />
+
+            <SectionList 
+                sections={MENU}
+                keyExtractor={(item) => item.id}
+                stickySectionHeadersEnabled={false}
+                renderItem={({item}) => (
+                    <Product data={item}/>
+                )}
+                renderSectionHeader={({section: {title}}) =>(
+                    <Text className="text-xl text-white font-heading mt-8 mb-3">{title}</Text>
+                )}
+                className="p-5 flex-1" 
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{paddingBottom:100}}
             />
         </View>
     )
