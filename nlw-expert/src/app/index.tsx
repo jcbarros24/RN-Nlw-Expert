@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+
+import { Link } from "expo-router";
 
 import { View, FlatList, SectionList, Text} from "react-native";
 
@@ -6,19 +8,37 @@ import { Product } from "@/components/product";
 import { CATEGORIES, MENU } from "@/utils/data/products";
 import { Header } from "@/components/header";
 import { CategoryButton } from "@/components/category-button";
+import { useCartStore } from "@/stores/cart-store";
 
 export default function Home(){
-
+    const cartStore = useCartStore()
     const [category, setCategory] = useState('')
+
+    const sectionListRef = useRef<SectionList>(null)
+
+    const cartQuantityItems = cartStore.products.reduce((acumulador, product ) => acumulador + product.quantity, 0)
 
     function handleCategorySelect(selectedCateogry: string){
         setCategory(selectedCateogry)
+
+        const sectionIndex = CATEGORIES.findIndex(
+            (category) => category === selectedCateogry
+        )
+
+        if (sectionListRef.current) {
+            sectionListRef.current.scrollToLocation({
+                animated:true,
+                sectionIndex,
+                itemIndex: 0
+            })
+            
+        }
     }
 
 
     return(
         <View className="bg-slate-900 pt-8 flex-1">
-            <Header title="Faça seu pedido" cartQuantityItems={4}/>
+            <Header title="Faça seu pedido" cartQuantityItems={cartQuantityItems}/>
 
             <FlatList 
                 data={CATEGORIES}
@@ -32,11 +52,14 @@ export default function Home(){
             />
 
             <SectionList 
+                ref={sectionListRef}
                 sections={MENU}
                 keyExtractor={(item) => item.id}
                 stickySectionHeadersEnabled={false}
                 renderItem={({item}) => (
-                    <Product data={item}/>
+                    <Link href={`/product/${item.id}`} asChild>     
+                        <Product data={item}/>
+                    </Link>
                 )}
                 renderSectionHeader={({section: {title}}) =>(
                     <Text className="text-xl text-white font-heading mt-8 mb-3">{title}</Text>
